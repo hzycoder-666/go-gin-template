@@ -14,15 +14,13 @@ func JWTAuth() gin.HandlerFunc {
 		authHeader := ctx.GetHeader("Authorization")
 
 		if authHeader == "" {
-			response.Fail(ctx, "missing token")
-			ctx.Abort()
+			response.Abort(ctx, "missing token")
 			return
 		}
 
 		parts := strings.Split(authHeader, " ")
 		if len(parts) != 2 {
-			response.Fail(ctx, "invalid token")
-			ctx.Abort()
+			response.Abort(ctx, "invalid token")
 			return
 		}
 
@@ -30,8 +28,7 @@ func JWTAuth() gin.HandlerFunc {
 
 		claims, err := auth.ParseToken([]byte(config.Global.Jwt.Secret), token)
 		if err != nil {
-			response.Fail(ctx, "invalid token")
-			ctx.Abort()
+			response.Abort(ctx, "invalid token")
 			return
 		}
 

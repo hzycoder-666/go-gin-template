@@ -1,16 +1,22 @@
 package service
 
 import (
+	"context"
 	"errors"
+	"log/slog"
+	"strings"
 
+	"github.com/go-sql-driver/mysql"
 	"golang.org/x/crypto/bcrypt"
 	"hzycoder.com/go-gin-template/internal/auth"
 	"hzycoder.com/go-gin-template/internal/config"
+	"hzycoder.com/go-gin-template/internal/model"
+	dto "hzycoder.com/go-gin-template/internal/model/dto/request"
 	"hzycoder.com/go-gin-template/internal/repository"
 )
 
-func Login(username, password string) (string, error) {
-	user, err := repository.GetUser(username)
+func Login(ctx context.Context, username, password string) (string, error) {
+	user, err := repository.GetUser(ctx, username)
 	if err != nil {
 		return "", errors.New("user not found")
 	}
@@ -35,4 +41,60 @@ func Login(username, password string) (string, error) {
 	}
 
 	return token, nil
+}
+
+func Register(ctx context.Context, req dto.PostUser) (string, error) {
+	exists, err := repository.IsUserExists(ctx, req.Username)
+
+	if err != nil {
+		slog.Error("register aborted due to db error", "error", err)
+		return "", errors.New("系统繁忙，请稍后再试")
+	}
+
+	if exists {
+		return "", errors.New("用户名已存在")
+	}
+
+	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(req.Password), bcrypt.DefaultCost)
+	if err != nil {
+		slog.Error("failed to hash password", "error", err)
+		return "", errors.New("系统内部错误")
+	}
+
+	newUser, err := repository.AddUser(ctx, model.User{
+		Username: req.Username,
+		Password: string(hashedPassword),
+	})
+
+	if err != nil {
+		if isDuplicateKeyError(err) {
+			return "", errors.New("用户名已存在")
+		}
+		slog.Error("add user failed", "error", err)
+		return "", errors.New("注册失败，请稍后重试")
+	}
+
+	slog.Info("user registered successfully", "user_id", newUser.ID, "username", newUser.Username)
+
+	token, err := auth.GenerateToken(
+		[]byte(config.Global.Jwt.Secret),
+		newUser.ID,
+		newUser.Username,
+	)
+
+	if err != nil {
+		slog.Error("generate token failed", "error", err)
+		return "", err
+	}
+
+	return token, nil
+}
+
+func isDuplicateKeyError(err error) bool {
+	var mysqlErr *mysql.MySQLError
+	if errors.As(err, &mysqlErr) && mysqlErr.Number == 1062 {
+		return true
+	}
+
+	return strings.Contains(err.Error(), "Duplicate")
 }

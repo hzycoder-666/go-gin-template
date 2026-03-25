@@ -14,6 +14,8 @@ import (
 	"hzycoder.com/go-gin-template/internal/database"
 	router "hzycoder.com/go-gin-template/internal/routes"
 	logger "hzycoder.com/go-gin-template/pkg/logger"
+
+	_ "hzycoder.com/go-gin-template/pkg/utils"
 )
 
 func main() {
@@ -43,7 +45,7 @@ func main() {
 		slog.Info("server start", "port", port)
 
 		if err := srv.ListenAndServe(); err != nil && err != http.ErrServerClosed {
-			slog.Error("server error", "err", err)
+			slog.Error("server error", "error", err)
 		}
 	}()
 
@@ -59,6 +61,6 @@ func main() {
 	defer cancel()
 
 	if err := srv.Shutdown(ctx); err != nil {
-		slog.Error("server forced to shutdown", "err", err)
+		slog.Error("server forced to shutdown", "error", err)
 	}
 }

@@ -1,6 +1,10 @@
 package response
 
-import "github.com/gin-gonic/gin"
+import (
+	"net/http"
+
+	"github.com/gin-gonic/gin"
+)
 
 type Resp struct {
 	Code int         `json:"code"`
@@ -9,7 +13,7 @@ type Resp struct {
 }
 
 func Success(c *gin.Context, data any) {
-	c.JSON(200, Resp{
+	c.JSON(http.StatusOK, Resp{
 		Code: 0,
 		Msg:  "success",
 		Data: data,
@@ -17,8 +21,15 @@ func Success(c *gin.Context, data any) {
 }
 
 func Fail(c *gin.Context, msg string) {
-	c.JSON(200, Resp{
+	c.JSON(http.StatusOK, Resp{
 		Code: 1,
+		Msg:  msg,
+	})
+}
+
+func Abort(c *gin.Context, msg string) {
+	c.AbortWithStatusJSON(http.StatusUnauthorized, Resp{
+		Code: http.StatusUnauthorized,
 		Msg:  msg,
 	})
 }

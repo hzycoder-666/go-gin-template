@@ -1,9 +1,12 @@
 package service
 
 import (
+	"context"
+
+	"hzycoder.com/go-gin-template/internal/model"
 	"hzycoder.com/go-gin-template/internal/repository"
 )
 
-func GetUser(username string) (any, error) {
-	return repository.GetUser(username)
+func GetUser(ctx context.Context, username string) (*model.User, error) {
+	return repository.GetUser(ctx, username)
 }
