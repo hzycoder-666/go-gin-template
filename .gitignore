@@ -1,0 +1,55 @@
+# 编译输出
+/bin/
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+
+# Go 二进制文件（常见命名）
+/main
+/web
+/server
+/app
+
+# 测试相关
+*.test
+*.prof
+cover.out
+coverage.txt
+
+# 本地配置文件（如数据库连接、API密钥等）
+.env
+.env.local
+.env.development
+.env.production
+config/local.yaml
+config/dev.json
+
+# 日志文件
+*.log
+logs/
+log/
+
+# 依赖管理
+/vendor/          # 如果你使用 vendor 目录且不打算提交（通常建议提交 vendor 或使用 go mod）
+go.sum            # 可选：有些团队保留 go.sum，但一般建议提交；如果你用代理或私有模块可忽略
+# 注意：通常 **不要忽略 go.mod**，它是项目依赖的核心！
+
+# IDE / 编辑器
+.vscode/
+.idea/
+*.swp
+*.swo
+.DS_Store
+*.sublime-project
+*.sublime-workspace
+
+# Docker 相关（如果构建上下文中有临时文件）
+docker-compose.override.yml
+# 注意：不要忽略 Dockerfile 或 docker-compose.yml（除非是本地覆盖文件）
+
+# 其他临时文件
+tmp/
+temp/
+*.tmp

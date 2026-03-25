@@ -1,0 +1,12 @@
+server:
+  port: 8080
+
+database:
+  dsn: root:zhu88jie@tcp(127.0.0.1:3306)/aibotcc?charset=utf8mb4&parseTime=True&loc=Local
+
+log:
+  level: info
+
+jwt:
+  secret: ts8CPmPMqzCPgZ1MlBHCD9iSflNgF5IiJPJMw8nbL_k=
+  expire: 7200
