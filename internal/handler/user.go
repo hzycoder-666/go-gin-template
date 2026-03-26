@@ -22,8 +22,8 @@ func GetUser(c *gin.Context) {
 	response.Success(c, &dto.QueryUser{
 		ID:       user.ID,
 		Username: user.Username,
-		Password: user.Password,
 		Nickname: user.Nickname,
+		Role:     user.Role,
 	})
 }
 

@@ -18,13 +18,13 @@ func GetUser(c context.Context, username string) (*model.User, error) {
 
 	row := database.DB.QueryRowContext(
 		ctx,
-		"SELECT id,username,password,nickname FROM users WHERE username=?",
+		"SELECT id,username,password,nickname,role FROM users WHERE username=?",
 		username,
 	)
 
 	var u model.User
 
-	err := row.Scan(&u.ID, &u.Username, &u.Password, &u.Nickname)
+	err := row.Scan(&u.ID, &u.Username, &u.Password, &u.Nickname, &u.Role)
 	if err != nil {
 		return nil, err
 	}
@@ -58,13 +58,14 @@ func AddUser(c context.Context, user model.User) (*model.User, error) {
 	user.UpdatedAt = now
 
 	query := `
-		INSERT INTO users (username, password, created_at, updated_at)
-		VALUES (?,?,?,?)
+		INSERT INTO users (username, password, role, created_at, updated_at)
+		VALUES (?,?,?,?,?)
 	`
 
 	result, err := database.DB.ExecContext(c, query,
 		user.Username,
 		user.Password,
+		user.Role,
 		user.CreatedAt,
 		user.UpdatedAt,
 	)
