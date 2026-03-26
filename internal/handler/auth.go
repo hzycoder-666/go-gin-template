@@ -2,6 +2,7 @@ package handler
 
 import (
 	"github.com/gin-gonic/gin"
+	"hzycoder.com/go-gin-template/internal/model"
 	dto "hzycoder.com/go-gin-template/internal/model/dto/request"
 	"hzycoder.com/go-gin-template/internal/service"
 	"hzycoder.com/go-gin-template/pkg/response"
@@ -46,6 +47,11 @@ func Register(c *gin.Context) {
 	}
 
 	ctx := c.Request.Context()
+
+	defaultRole := model.RoleMember
+	if req.Role == nil || !model.IsValid(*req.Role) {
+		req.Role = &defaultRole
+	}
 
 	token, err := service.Register(ctx, req)
 	if err != nil {

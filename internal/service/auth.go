@@ -18,6 +18,7 @@ import (
 func Login(ctx context.Context, username, password string) (string, error) {
 	user, err := repository.GetUser(ctx, username)
 	if err != nil {
+		slog.Error("query user failed", "error", err)
 		return "", errors.New("user not found")
 	}
 
@@ -34,6 +35,7 @@ func Login(ctx context.Context, username, password string) (string, error) {
 		[]byte(config.Global.Jwt.Secret),
 		user.ID,
 		user.Username,
+		user.Role,
 	)
 
 	if err != nil {
@@ -64,6 +66,7 @@ func Register(ctx context.Context, req dto.PostUser) (string, error) {
 	newUser, err := repository.AddUser(ctx, model.User{
 		Username: req.Username,
 		Password: string(hashedPassword),
+		Role:     *req.Role,
 	})
 
 	if err != nil {
@@ -80,6 +83,7 @@ func Register(ctx context.Context, req dto.PostUser) (string, error) {
 		[]byte(config.Global.Jwt.Secret),
 		newUser.ID,
 		newUser.Username,
+		newUser.Role,
 	)
 
 	if err != nil {

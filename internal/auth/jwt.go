@@ -4,18 +4,21 @@ import (
 	"time"
 
 	"github.com/golang-jwt/jwt/v5"
+	"hzycoder.com/go-gin-template/internal/model"
 )
 
 type Claims struct {
-	UserID   int64  `json:"user_id"`
-	Username string `json:"username"`
+	UserID   int64      `json:"user_id"`
+	Username string     `json:"username"`
+	Role     model.Role `json:"role"`
 	jwt.RegisteredClaims
 }
 
-func GenerateToken(secret []byte, userID int64, username string) (string, error) {
+func GenerateToken(secret []byte, userID int64, username string, role model.Role) (string, error) {
 	claims := Claims{
 		UserID:   userID,
 		Username: username,
+		Role:     role,
 		RegisteredClaims: jwt.RegisteredClaims{
 			ExpiresAt: jwt.NewNumericDate(
 				time.Now().Add(time.Hour * 2),

@@ -4,6 +4,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"hzycoder.com/go-gin-template/internal/handler"
 	"hzycoder.com/go-gin-template/internal/middleware"
+	"hzycoder.com/go-gin-template/internal/model"
 )
 
 func SetupRouter() *gin.Engine {
@@ -21,7 +22,7 @@ func SetupRouter() *gin.Engine {
 	api := r.Group("/api")
 	api.Use(middleware.JWTAuth())
 	{
-		api.GET("/user/me", handler.GetUserInfo)
+		api.GET("/user/me", middleware.RequireRole(model.RoleMember), handler.GetUserInfo)
 		api.GET("/user/info/:name", handler.GetUser)
 	}
 

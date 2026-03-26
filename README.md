@@ -15,6 +15,7 @@
 * 统一 API 返回格式
 * 优雅关闭（Graceful Shutdown）
 * 可扩展的项目结构
+* 基础的认证授权逻辑
 
 核心技术栈：
 
@@ -22,13 +23,14 @@
 * Gin
 * slog
 * Viper
+* jwt
 
 ---
 
 # 二、项目结构
 
 ```
-go-gin-app
+go-gin-template
 │
 ├── cmd
 │   └── server
@@ -206,7 +208,7 @@ response.Fail(c, "error message")
 | --------- | ------- |
 | Logger    | 请求日志    |
 | Recovery  | Panic恢复 |
-| Auth      | 认证（可扩展） |
+| JWTAuth   | 认证（可扩展） |
 | RateLimit | 限流（可扩展） |
 
 示例：
