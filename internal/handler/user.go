@@ -15,7 +15,7 @@ func GetUser(c *gin.Context) {
 	user, err := service.GetUser(ctx, username)
 
 	if err != nil {
-		response.Fail(c, err.Error())
+		response.HandleError(c, err)
 		return
 	}
 

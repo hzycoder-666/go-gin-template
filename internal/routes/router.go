@@ -10,8 +10,9 @@ import (
 func SetupRouter() *gin.Engine {
 	r := gin.New()
 
+	r.Use(middleware.RecoveryWithBizError())
 	r.Use(middleware.Logger())
-	r.Use(gin.Recovery())
+	r.Use(middleware.BizErrorHandler())
 
 	auth := r.Group("/auth")
 	{

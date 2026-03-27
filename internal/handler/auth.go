@@ -1,6 +1,8 @@
 package handler
 
 import (
+	"log/slog"
+
 	"github.com/gin-gonic/gin"
 	"hzycoder.com/go-gin-template/internal/model"
 	dto "hzycoder.com/go-gin-template/internal/model/dto/request"
@@ -8,28 +10,22 @@ import (
 	"hzycoder.com/go-gin-template/pkg/response"
 )
 
-type LoginRequest struct {
-	Username string `json:"username"`
-	Password string `json:"password"`
-}
-
 func Login(c *gin.Context) {
-	var req LoginRequest
+	var req dto.LoginUser
 
 	if err := c.ShouldBindJSON(&req); err != nil {
-		response.Fail(c, err.Error())
+		// 存储验证错误到上下文，让中间件处理
+		c.Set("validation_error", err)
+		c.Abort()
 		return
 	}
+
 	ctx := c.Request.Context()
 
-	token, err := service.Login(
-		ctx,
-		req.Username,
-		req.Password,
-	)
-
+	token, err := service.Login(ctx, req)
 	if err != nil {
-		response.Fail(c, err.Error())
+		slog.Error("login failed", "username", req.Username, "error", err)
+		response.HandleError(c, err)
 		return
 	}
 
@@ -39,10 +35,12 @@ func Login(c *gin.Context) {
 }
 
 func Register(c *gin.Context) {
-	var req dto.PostUser
+	var req dto.RegisterUser
 
 	if err := c.ShouldBindJSON(&req); err != nil {
-		response.Fail(c, err.Error())
+		// 存储验证错误到上下文，让中间件处理
+		c.Set("validation_error", err)
+		c.Abort()
 		return
 	}
 
@@ -55,7 +53,8 @@ func Register(c *gin.Context) {
 
 	token, err := service.Register(ctx, req)
 	if err != nil {
-		response.Fail(c, err.Error())
+		slog.Error("register failed", "username", req.Username, "error", err)
+		response.HandleError(c, err)
 		return
 	}
 
