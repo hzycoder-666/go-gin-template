@@ -1,6 +1,8 @@
 package handler
 
 import (
+	"strconv"
+
 	dto "hzycoder.com/go-gin-template/internal/model/dto/response"
 	"hzycoder.com/go-gin-template/internal/service"
 	"hzycoder.com/go-gin-template/pkg/response"
@@ -28,9 +30,45 @@ func GetUser(c *gin.Context) {
 }
 
 func GetUserInfo(c *gin.Context) {
-	userID, _ := c.Get("user_id")
+	userIDAny, exists := c.Get("user_id")
+	if !exists {
+		response.FailWithCode(c, response.CodeParamInvalid)
+		return
+	}
 
-	response.Success(c, gin.H{
-		"user_id": userID,
+	userID, ok := ExtractInt64(userIDAny)
+	if !ok {
+		response.FailWithCode(c, response.CodeParamInvalid)
+		return
+	}
+
+	ctx := c.Request.Context()
+	user, err := service.GetUserById(ctx, userID)
+	if err != nil {
+		response.HandleError(c, err)
+		return
+	}
+
+	response.Success(c, &dto.QueryUser{
+		ID:       user.ID,
+		Username: user.Username,
+		Nickname: user.Nickname,
+		Role:     user.Role,
 	})
+}
+
+func ExtractInt64(v any) (int64, bool) {
+	switch x := v.(type) {
+	case int64:
+		return x, true
+	case int:
+		return int64(x), true
+	case string:
+		if i, err := strconv.ParseInt(x, 10, 64); err == nil {
+			return i, true
+		}
+	case float64:
+		return int64(x), true
+	}
+	return 0, false
 }

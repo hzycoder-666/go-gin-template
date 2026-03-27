@@ -10,3 +10,7 @@ import (
 func GetUser(ctx context.Context, username string) (*model.User, error) {
 	return repository.GetUser(ctx, username)
 }
+
+func GetUserById(ctx context.Context, userID int64) (*model.User, error) {
+	return repository.GetUserById(ctx, userID)
+}

@@ -19,6 +19,7 @@ func Logger() gin.HandlerFunc {
 		slog.Info("request",
 			"method", c.Request.Method,
 			"path", c.Request.URL.Path,
+			"query", c.Request.URL.Query(),
 			"status", c.Writer.Status(),
 			"latency", duration,
 		)

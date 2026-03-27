@@ -32,6 +32,26 @@ func GetUser(c context.Context, username string) (*model.User, error) {
 	return &u, nil
 }
 
+func GetUserById(c context.Context, userID int64) (*model.User, error) {
+	ctx, cancel := context.WithTimeout(c, 5*time.Second)
+	defer cancel()
+
+	row := database.DB.QueryRowContext(
+		ctx,
+		"SELECT id,username,nickname,role FROM users WHERE id=?",
+		userID,
+	)
+
+	var u model.User
+
+	err := row.Scan(&u.ID, &u.Username, &u.Nickname, &u.Role)
+	if err != nil {
+		return nil, err
+	}
+
+	return &u, nil
+}
+
 func IsUserExists(c context.Context, username string) (bool, error) {
 	var dummy int
 	err := database.DB.QueryRowContext(
