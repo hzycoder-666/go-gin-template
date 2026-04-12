@@ -11,16 +11,22 @@ import (
 	"hzycoder.com/go-gin-template/internal/auth"
 	"hzycoder.com/go-gin-template/internal/config"
 	"hzycoder.com/go-gin-template/internal/model"
-	dto "hzycoder.com/go-gin-template/internal/model/dto/request"
+	reqDto "hzycoder.com/go-gin-template/internal/model/dto/request"
+	resDto "hzycoder.com/go-gin-template/internal/model/dto/response"
 	"hzycoder.com/go-gin-template/internal/repository"
 	"hzycoder.com/go-gin-template/pkg/response"
 )
 
-func Login(ctx context.Context, req dto.LoginUser) (string, error) {
+type LoginResp struct {
+	Token    string `json:"token"`
+	UserInfo *resDto.QueryUser
+}
+
+func Login(ctx context.Context, req reqDto.LoginUser) (*LoginResp, error) {
 	user, err := repository.GetUser(ctx, req.Username)
 	if err != nil {
 		slog.Error("query user failed", "error", err)
-		return "", response.NewBizError(response.CodeUserNotFound)
+		return nil, response.NewBizError(response.CodeUserNotFound)
 	}
 
 	err = bcrypt.CompareHashAndPassword(
@@ -29,7 +35,7 @@ func Login(ctx context.Context, req dto.LoginUser) (string, error) {
 	)
 
 	if err != nil {
-		return "", response.NewBizError(response.CodePasswordWrong)
+		return nil, response.NewBizError(response.CodePasswordWrong)
 	}
 
 	token, err := auth.GenerateToken(
@@ -41,13 +47,21 @@ func Login(ctx context.Context, req dto.LoginUser) (string, error) {
 
 	if err != nil {
 		slog.Error("generate token failed", "error", err)
-		return "", response.NewBizError(response.CodeSystemError, "登录失败，请稍后重试")
+		return nil, response.NewBizError(response.CodeSystemError, "登录失败，请稍后重试")
 	}
 
-	return token, nil
+	return &LoginResp{
+		token,
+		&resDto.QueryUser{
+			ID:       user.ID,
+			Username: user.Username,
+			Nickname: user.Nickname,
+			Role:     user.Role,
+		},
+	}, nil
 }
 
-func Register(ctx context.Context, req dto.RegisterUser) (string, error) {
+func Register(ctx context.Context, req reqDto.RegisterUser) (string, error) {
 	exists, err := repository.IsUserExists(ctx, req.Username)
 
 	if err != nil {

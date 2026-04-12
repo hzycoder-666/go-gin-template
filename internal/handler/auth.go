@@ -22,7 +22,7 @@ func Login(c *gin.Context) {
 
 	ctx := c.Request.Context()
 
-	token, err := service.Login(ctx, req)
+	loginResp, err := service.Login(ctx, req)
 	if err != nil {
 		slog.Error("login failed", "username", req.Username, "error", err)
 		response.HandleError(c, err)
@@ -30,7 +30,8 @@ func Login(c *gin.Context) {
 	}
 
 	response.Success(c, gin.H{
-		"token": token,
+		"token":    loginResp.Token,
+		"userInfo": loginResp.UserInfo,
 	})
 }
 

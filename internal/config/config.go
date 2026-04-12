@@ -19,6 +19,10 @@ type Config struct {
 		Secret string
 		Expire int
 	}
+
+	Ai struct {
+		Token string
+	}
 }
 
 var Global Config
